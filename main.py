@@ -33,20 +33,15 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         if event.event_type == 'created':
             # Take any action here when a file is first created.
-            print "Received created event - %s." % event.src_path
+            print "Received created event - {}.".format(event.src_path)
 
             filename = event.src_path
 
             if filename.endswith(".docx"):
                 try:
-                    pyword.run(filename)
+                    pyword.run()
                 except Exception as e:
                     print "Error Occured", e
-
-
-        elif event.event_type == 'modified':
-            # Taken any action here when a file is modified.
-            print "Received modified event - %s." % event.src_path
 
 
 if __name__ == '__main__':
