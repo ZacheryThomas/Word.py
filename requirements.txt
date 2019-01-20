@@ -1,0 +1,5 @@
+PyAutoGUI==0.9.41
+pyobjc==5.1.2
+pyobjc-core==5.1.2
+pyperclip==1.7.0
+watchdog==0.9.0
