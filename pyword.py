@@ -4,7 +4,7 @@ import subprocess
 import pyautogui
 import pyperclip
 
-OUTPUT_DELIMITER = "-eof-"
+OUTPUT_DELIMITER = "output:"
 
 def select_all_text():
     '''
@@ -61,7 +61,7 @@ def content_cleaner(text):
 
 def run():
     '''
-    Main entrypoint of program
+    Main entrypoint of the module
     '''
     file_content = get_text()
 
@@ -83,7 +83,6 @@ def run():
 
     final_output = '''{code}
 {delimiter}
-output:
 {output}
 '''.format(code=code, delimiter=OUTPUT_DELIMITER, output=output)
 
