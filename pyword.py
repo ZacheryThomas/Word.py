@@ -3,27 +3,16 @@
 import subprocess
 import pyautogui
 import pyperclip
+import docx
 
+CTRL_KEY = 'command'
 OUTPUT_DELIMITER = "output:"
 
 def select_all_text():
     '''
     Hotkey that selects all on screen text with pyautogui
     '''
-    pyautogui.hotkey('command', 'a')
-
-
-def get_text():
-    '''
-    Selects all on screen text and returns what is selected back as a string
-    '''
-    select_all_text()
-
-    # copy selected text to clipboard and store
-    pyautogui.hotkey('command', 'c')
-    text = pyperclip.paste()
-
-    return text
+    pyautogui.hotkey(CTRL_KEY, 'a')
 
 
 def delete_all_text():
@@ -36,6 +25,17 @@ def delete_all_text():
     pyautogui.hotkey('del')
 
 
+def get_text(filename):
+    '''
+    Gets all text in word document, returns string
+    '''
+    doc = docx.Document(filename)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return '\n'.join(full_text)
+
+
 def write_output(text):
     '''
     Copies given text to clipboard, then pastes
@@ -45,7 +45,7 @@ def write_output(text):
     pyperclip.copy(text)
 
     # dump clipboard to wherever cursor is
-    pyautogui.hotkey('command', 'v')
+    pyautogui.hotkey(CTRL_KEY, 'v')
 
 
 def content_cleaner(text):
@@ -59,16 +59,16 @@ def content_cleaner(text):
     return text
 
 
-def run():
+def run(filename):
     '''
     Main entrypoint of the module
     '''
-    file_content = get_text()
+    file_content = get_text(filename)
 
-    output_location = file_content.find(OUTPUT_DELIMITER)
+    delimiter_location = file_content.find(OUTPUT_DELIMITER)
 
-    if output_location > -1:
-        file_content = file_content[:output_location].rstrip()
+    if delimiter_location > -1:
+        file_content = file_content[:delimiter_location].rstrip()
 
     code = content_cleaner(file_content)
 
@@ -86,6 +86,5 @@ def run():
 {output}
 '''.format(code=code, delimiter=OUTPUT_DELIMITER, output=output)
 
-    delete_all_text()
-
+    select_all_text()
     write_output(final_output)

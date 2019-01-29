@@ -39,7 +39,7 @@ class Handler(FileSystemEventHandler):
 
             if filename.endswith(".docx"):
                 try:
-                    pyword.run()
+                    pyword.run(filename)
                 except Exception as e:
                     print "Error Occured", e
 
