@@ -1,90 +1,49 @@
 # -*- coding: utf-8 -*-
 
-import subprocess
-import pyautogui
-import pyperclip
-import docx
+import time
 
-CTRL_KEY = 'command'
-OUTPUT_DELIMITER = "output:"
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
-def select_all_text():
-    '''
-    Hotkey that selects all on screen text with pyautogui
-    '''
-    pyautogui.hotkey(CTRL_KEY, 'a')
+import docx_handler
 
+class Watcher:
+    DIRECTORY_TO_WATCH = "."
 
-def delete_all_text():
-    '''
-    Selects all on screen text and deltes it
-    '''
-    select_all_text()
+    def __init__(self):
+        self.observer = Observer()
 
-    # press delete key
-    pyautogui.hotkey('del')
+    def run(self):
+        event_handler = Handler()
+        self.observer.schedule(event_handler, self.DIRECTORY_TO_WATCH, recursive=True)
+        self.observer.start()
+        try:
+            while True:
+                time.sleep(5)
+        except:
+            self.observer.stop()
+            print "Error"
 
-
-def get_text(filename):
-    '''
-    Gets all text in word document, returns string
-    '''
-    doc = docx.Document(filename)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return '\n'.join(full_text)
+        self.observer.join()
 
 
-def write_output(text):
-    '''
-    Copies given text to clipboard, then pastes
-    '''
+class Handler(FileSystemEventHandler):
 
-    # store output text in clipboard
-    pyperclip.copy(text)
+    @staticmethod
+    def on_any_event(event):
+        if event.event_type == 'created':
+            # Take any action here when a file is first created.
+            print "Received created event - {}.".format(event.src_path)
 
-    # dump clipboard to wherever cursor is
-    pyautogui.hotkey(CTRL_KEY, 'v')
+            filename = event.src_path
 
-
-def content_cleaner(text):
-    '''
-    Cleans content from word fancy characters to python friendly ones
-    '''
-    replacers = [('“', '"'), ('”', '"'), ('‘', "'"), ('’', "'"), ('-', '-')]
-    text = text.encode('utf-8')
-    for replacement in replacers:
-        text = text.replace(replacement[0], replacement[1])
-    return text
+            if filename.endswith(".docx"):
+                try:
+                    docx_handler.run(filename)
+                except Exception as e:
+                    print "Error Occured", e
 
 
-def run(filename):
-    '''
-    Main entrypoint of the module
-    '''
-    file_content = get_text(filename)
-
-    delimiter_location = file_content.find(OUTPUT_DELIMITER)
-
-    if delimiter_location > -1:
-        file_content = file_content[:delimiter_location].rstrip()
-
-    code = content_cleaner(file_content)
-
-    output = ''
-    try:
-        output = subprocess.check_output(
-            ['python', '-c', code],
-            stderr=subprocess.STDOUT
-            ).decode('utf-8')
-    except subprocess.CalledProcessError as exc:
-        output = exc.output
-
-    final_output = '''{code}
-{delimiter}
-{output}
-'''.format(code=code, delimiter=OUTPUT_DELIMITER, output=output)
-
-    select_all_text()
-    write_output(final_output)
+if __name__ == '__main__':
+    watcher = Watcher()
+    watcher.run()
