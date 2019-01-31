@@ -14,6 +14,10 @@ from watchdog.events import FileSystemEventHandler
 
 import docx_handler
 
+logging.basicConfig()
+logger = logging.getLogger('pyword')
+logger.setLevel(logging.INFO)
+
 class Watcher(object):
     '''
     Class that uses watchdog observer to handle file change events
@@ -67,6 +71,7 @@ def parse_args(args):
         default='.',
         help='Directory to monitor for docx file changes. (default: current dir script is ran from)'
     )
+    parser.add_argument('--verbose', action='store_true', dest='verbose', help='Increases verbosity of output')
     return parser.parse_args(args)
 
 
@@ -74,14 +79,21 @@ def main(args=None):
     '''
     Main entrypoint
     '''
+    logger.info('Running pyword!')
     args = parse_args(args)
 
-    if os.path.isdir(args.directory):
-        watcher = Watcher(directory=args.directory)
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+
+    dir = args.directory
+    if os.path.isdir(dir):
+        logger.info('Starting pyword monitoring on "%s"', dir)
+        watcher = Watcher(directory=dir)
         watcher.run()
     else:
-        logging.error('"%s" is not a directory', args.directory)
+        logger.error('"%s" is not a directory', dir)
         exit(1)
+    logger.info('Bye!')
 
 
 if __name__ == '__main__':
