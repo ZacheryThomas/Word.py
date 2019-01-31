@@ -5,6 +5,8 @@ import pyautogui
 import pyperclip
 import docx
 
+from util import pyword_logger
+
 CTRL_KEY = 'command'
 OUTPUT_DELIMITER = "output:"
 
@@ -67,10 +69,13 @@ def run(filename):
 
     delimiter_location = file_content.find(OUTPUT_DELIMITER)
 
+    # if there is a delimiter, we must extract code location
+    # anything before delimiter is code
     if delimiter_location > -1:
-        file_content = file_content[:delimiter_location].rstrip()
+        file_content = file_content[:delimiter_location - 1]
 
     code = content_cleaner(file_content)
+    pyword_logger.debug('code found: \n%s', code)
 
     output = ''
     try:
