@@ -3,3 +3,4 @@ pyobjc==5.1.2
 pyobjc-core==5.1.2
 pyperclip==1.7.0
 watchdog==0.9.0
+python-docx==0.8.10
