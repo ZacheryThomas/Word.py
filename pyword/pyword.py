@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import time
+import argparse
+import logging
+import os
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -10,7 +14,7 @@ import docx_handler
 class Watcher:
     DIRECTORY_TO_WATCH = "."
 
-    def __init__(self):
+    def __init__(self, directory='.'):
         self.observer = Observer()
 
     def run(self):
@@ -44,6 +48,29 @@ class Handler(FileSystemEventHandler):
                     print "Error Occured", e
 
 
+def parse_args(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--directory',
+        action='store',
+        dest='directory',
+        default='.',
+        help='Directory to monitor for docx file changes. (default: current dir script is ran from)'
+    )
+    return parser.parse_args(args)
+
+
+def main(args=None):
+    args = parse_args(args)
+
+    if os.path.isdir(args.directory):
+        watcher = Watcher(directory=args.directory)
+        watcher.run()
+    else:
+        logging.error('"%s" is not a directory' % args.directory)
+        exit(1)
+
+
+
 if __name__ == '__main__':
-    watcher = Watcher()
-    watcher.run()
+    main(sys.argv[1:])
