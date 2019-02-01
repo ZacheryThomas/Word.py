@@ -10,7 +10,8 @@ setup(
     description='Run python in word',
     setup_requires='setuptools',
     entry_points={
-        'console_scripts': ['pyword=pyword.pyword:main']},
+        'console_scripts': ['wordpy=wordpy.word:main',
+                            'word.py=wordpy.word:main']},
     packages=find_packages(),
     install_requires=[
         'PyAutoGUI>=0.9.41',

@@ -32,9 +32,9 @@ class Watcher(object):
         try:
             while True:
                 time.sleep(5)
-        except:
+        except Exception as exception:
             self.observer.stop()
-            print "Error"
+            pyword_logger.error("Exception thrown: %s", exception)
 
         self.observer.join()
 
@@ -47,15 +47,15 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         if event.event_type == 'created':
             # Take any action here when a file is first created.
-            print "Received created event - {}.".format(event.src_path)
+            pyword_logger.info("Received created event - %s.", event.src_path)
 
             filename = event.src_path
 
             if filename.endswith(".docx"):
                 try:
                     docx_handler.run(filename)
-                except Exception as error:
-                    print "Error Occured", error
+                except Exception as exception:
+                    pyword_logger.error("Exception thrown: %s", exception)
 
 
 def parse_args(args):
@@ -63,7 +63,8 @@ def parse_args(args):
     Parses command line arguments
     '''
     parser = argparse.ArgumentParser(description='Run python in word')
-    parser.add_argument('--verbose', action='store_true', dest='verbose', help='Increases verbosity of output')
+    parser.add_argument('--verbose', action='store_true', dest='verbose',
+                        help='Increases verbosity of output')
     parser.add_argument(
         '--path',
         action='store',
@@ -96,7 +97,7 @@ def main(args=None):
             else:
                 pyword_logger.error('"%s" is a file, but does not end in .docx', path)
 
-        path =  os.path.abspath(path)
+        path = os.path.dirname(os.path.abspath(path))
         pyword_logger.info('Starting pyword monitoring on "%s"', path)
         watcher = Watcher(path=path)
         watcher.run()
