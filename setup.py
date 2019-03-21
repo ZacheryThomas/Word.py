@@ -5,7 +5,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 setup(
-    name='pyword',
+    name='wordpy',
     version='0.0.1',
     description='Run python in word',
     setup_requires='setuptools',
